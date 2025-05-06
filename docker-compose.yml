@@ -1,0 +1,44 @@
+version: '3.8'
+services:
+  # IPFS Node
+  ipfs:
+    image: ipfs/go-ipfs:latest
+    container_name: ipfs-node
+    ports:
+      - "4001:4001"  # IPFS swarm
+      - "5001:5001"  # IPFS API
+      - "8080:8080"  # IPFS Gateway
+    volumes:
+      - ipfs_staging:/export
+      - ipfs_data:/data/ipfs
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "ipfs", "id"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # FastAPI Application
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: nft-scan-api
+    ports:
+      - "7070:7070"
+    volumes:
+      - ./data:/app/data
+    environment:
+      - IPFS_HOST=/dns/ipfs/tcp/5001/http
+    depends_on:
+      - ipfs
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:7070/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+volumes:
+  ipfs_staging:
+  ipfs_data:
