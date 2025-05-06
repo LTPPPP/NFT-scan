@@ -26,7 +26,7 @@ docker-compose up -d
 
 This will start both the FastAPI backend and an IPFS node.
 
-3. Access the API documentation at `http://localhost:8000/docs`
+3. Access the API documentation at `http://localhost:7070/docs`
 
 ## API Endpoints
 
